@@ -1,0 +1,19 @@
+/* Reset básico profesional */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Elimina márgenes blancos del navegador */
+  html, body, #root {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #0f0f0f; /* Fondo oscuro global */
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  /* Scroll suave  */
+  html {
+    scroll-behavior: smooth;
+  }
