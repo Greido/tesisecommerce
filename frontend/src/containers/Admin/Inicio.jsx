@@ -16,7 +16,7 @@ const items = [
     label: "Ventas",
     icon: <PointOfSaleOutlinedIcon sx={{ fontSize: 50 }} />,
     route: "/admin-ventas",
-    available: false,
+    available: true,
   },
   {
     label: "Ecommerce",

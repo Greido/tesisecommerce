@@ -6,6 +6,7 @@ import Inicio from '../containers/Inicio.jsx'
 import Register from '../containers/Register.jsx'
 import AdminDashboard from '../containers/Admin/Inicio.jsx'
 import Dashboard from '../containers/Dashboard.jsx'
+import AdminPedidos from '../containers/Admin/Pedidos.jsx'
 import StockMenu from '../containers/Admin/stock/CrearStock.jsx'
 import SubirProducto from '../containers/Admin/stock/SubirProducto.jsx'
 import VerProductos from '../containers/Admin/stock/VerProductos.jsx'
@@ -63,6 +64,7 @@ export default function AppRoutes() {
       <Route path="/admin-stock" element={<ProtectedRoute><StockMenu /></ProtectedRoute>} />
       <Route path="/admin-stock-upload" element={<ProtectedRoute><SubirProducto /></ProtectedRoute>} />
       <Route path="/admin-stock-views" element={<ProtectedRoute><VerProductos /></ProtectedRoute>} />
+      <Route path="/admin-ventas" element={<ProtectedRoute><AdminPedidos /></ProtectedRoute>} />
       <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
       <Route path="/pago-exitoso" element={<ProtectedRoute><PagoExitoso /></ProtectedRoute>} />
       <Route path="/pago-pendiente" element={<ProtectedRoute><PagoPendiente /></ProtectedRoute>} />
