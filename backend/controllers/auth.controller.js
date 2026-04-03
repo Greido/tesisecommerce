@@ -25,7 +25,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id_usuario },
+      { id: user.id_usuario, rol: user.rol },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -60,6 +60,10 @@ export const register = async (req, res) => {
   } = req.body;
 
   try {
+    const [existing] = await db.execute("SELECT id_usuario FROM users WHERE email = ?", [email]);
+    if (existing.length > 0) {
+      return res.status(409).json({ error: "El email ya está registrado" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 

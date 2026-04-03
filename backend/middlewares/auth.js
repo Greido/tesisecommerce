@@ -24,14 +24,14 @@ export const validarJwt = (req, res, next) => {
 // middleware/auth.js (continuación)
 
 // Middleware para validar rol mínimo requerido
-export const validarRol = (rolMinimo = 2) => {
+export const validarRol = (rolRequerido = 1) => {
     return (req, res, next) => {
       if (!req.user)
         return res.status(401).json({ error: "Usuario no autenticado" });
-  
-      if (req.user.id_rol < rolMinimo)
-        return res.status(403).json({ error: "Acceso denegado" });
-  
+
+      if (req.user.rol !== rolRequerido)
+        return res.status(403).json({ error: "Acceso denegado: se requiere rol de administrador" });
+
       next();
     };
   };

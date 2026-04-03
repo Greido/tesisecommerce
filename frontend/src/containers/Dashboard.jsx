@@ -1,559 +1,434 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Chip,
-  Stack,
   Avatar,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
-  IconButton
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Stack,
+  Typography,
 } from "@mui/material";
-import {
-  Pets,
-  ShoppingCart,
-  People,
-  Inventory2,
-  ArrowUpward,
-  ArrowDownward,
-  MoreVert
-} from "@mui/icons-material";
+import { AdminPanelSettings, Logout, Pets, ShoppingCart } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { useCart } from "../auth/CartContext.jsx";
+import { fetchProductos } from "../api/stock.js";
+import CartDrawer from "../components/CartDrawer.jsx";
 
-export default function Dashboard() {
+// Swiper
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+
+// ─── Banners del hero carousel ───────────────────────────────────────────────
+const BANNERS = [
+  {
+    titulo: "Todo para tu mascota",
+    subtitulo: "Los mejores productos para perros, gatos y más.",
+    bg: "linear-gradient(135deg, #0f2a0f 0%, #14532d 60%, #166534 100%)",
+    emoji: "🐶",
+  },
+  {
+    titulo: "Nuevos productos",
+    subtitulo: "Descubrí las últimas novedades de nuestra tienda.",
+    bg: "linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)",
+    emoji: "🐱",
+  },
+  {
+    titulo: "Envíos a todo el país",
+    subtitulo: "Pedí desde casa y recibilo en la puerta.",
+    bg: "linear-gradient(135deg, #431407 0%, #7c2d12 60%, #c2410c 100%)",
+    emoji: "🐦",
+  },
+];
+
+// ─── Card de producto ─────────────────────────────────────────────────────────
+function ProductoCard({ p }) {
+  const { agregar } = useCart();
+  const stockColor = p.stock_actual === 0 ? "error" : p.stock_actual <= p.stock_minimo ? "warning" : "success";
+
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        width: "100%",
+        backgroundColor: "#0d1f0d",
+        border: "1px solid rgba(34,197,94,0.2)",
+        borderRadius: 3,
+        overflow: "hidden",
+        height: "100%",
         display: "flex",
-        backgroundColor: "#050805",
-        color: "#f9fafb"
+        flexDirection: "column",
+        transition: "transform 0.2s, border-color 0.2s",
+        ":hover": { transform: "translateY(-4px)", borderColor: "rgba(34,197,94,0.5)" },
+        userSelect: "none",
       }}
     >
-      {/* Sidebar */}
-      <Box
-        sx={{
-          display: { xs: "none", sm: "flex" },
-          flexDirection: "column",
-          width: { sm: 80, md: 240 },
-          borderRight: "1px solid rgba(45,107,45,0.3)",
-          background:
-            "linear-gradient(180deg, rgba(14,32,14,1) 0%, rgba(6,12,6,1) 100%)",
-          p: { sm: 1.5, md: 2 },
-          gap: 2
-        }}
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent={{ sm: "center", md: "flex-start" }}
-          spacing={1.5}
-          sx={{ mb: 3 }}
-        >
-          <Box
-            sx={{
-              width: 40,
-              height: 40,
-              borderRadius: 2,
-              background:
-                "radial-gradient(circle at 30% 30%, #4ade80, #22c55e, #14532d)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 8px 24px rgba(34,197,94,0.35)"
-            }}
-          >
-            <Pets sx={{ color: "#f9fafb", fontSize: 26 }} />
-          </Box>
-          <Typography
-            variant="h6"
-            sx={{
-              display: { sm: "none", md: "block" },
-              fontWeight: 700,
-              letterSpacing: 0.5
-            }}
-          >
-            AnimalZoo
-          </Typography>
-        </Stack>
-
-        <Stack
-          spacing={1}
-          sx={{ mt: 1, fontSize: 14, color: "#9ca3af", display: { sm: "none", md: "flex" } }}
-        >
-          <Typography sx={{ fontWeight: 600, color: "#9ca3af" }}>
-            Principal
-          </Typography>
-          <Typography sx={{ color: "#e5e7eb" }}>Dashboard</Typography>
-          <Typography>Pedidos</Typography>
-          <Typography>Clientes</Typography>
-          <Typography>Productos</Typography>
-          <Typography>Ajustes</Typography>
-        </Stack>
-      </Box>
-
-      {/* Main content */}
-      <Box
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          p: { xs: 2, sm: 3, md: 4 },
-          gap: 3
-        }}
-      >
-        {/* Top bar */}
+      {p.imagen_url ? (
+        <Box
+          component="img"
+          src={p.imagen_url}
+          alt={p.nombre}
+          sx={{ width: "100%", height: 160, objectFit: "cover" }}
+        />
+      ) : (
         <Box
           sx={{
+            height: 160,
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            gap: 2,
-            flexWrap: "wrap"
+            justifyContent: "center",
+            backgroundColor: "#0f2a0f",
           }}
         >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{ fontWeight: 700, mb: 0.5, color: "#f9fafb" }}
-            >
-              Panel de control
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "#9ca3af" }}
-            >
-              Resumen general de tu tienda online.
-            </Typography>
-          </Box>
-
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Chip
-              label="Hoy"
-              sx={{
-                borderRadius: 2,
-                backgroundColor: "rgba(34,197,94,0.1)",
-                border: "1px solid rgba(34,197,94,0.6)",
-                color: "#bbf7d0",
-                fontWeight: 500
-              }}
-            />
-            <Avatar
-              sx={{
-                width: 36,
-                height: 36,
-                bgcolor: "#14532d",
-                fontSize: 16
-              }}
-            >
-              AZ
-            </Avatar>
-          </Stack>
+          <Pets sx={{ fontSize: 56, color: "rgba(34,197,94,0.25)" }} />
         </Box>
+      )}
 
-        {/* KPI cards */}
-        <Grid container spacing={2.5}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                background:
-                  "radial-gradient(circle at 0 0, rgba(34,197,94,0.18), #020617)",
-                border: "1px solid rgba(34,197,94,0.5)"
-              }}
-            >
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Box>
-                  <Typography variant="body2" sx={{ color: "#9ca3af" }}>
-                    Ventas de hoy
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{ fontWeight: 700, mt: 0.5, color: "#f9fafb" }}
-                  >
-                    $4.250,90
-                  </Typography>
-                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.75 }}>
-                    <ArrowUpward sx={{ fontSize: 16, color: "#4ade80" }} />
-                    <Typography variant="caption" sx={{ color: "#4ade80" }}>
-                      +12% vs. ayer
-                    </Typography>
-                  </Stack>
-                </Box>
-                <Box
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 2,
-                    backgroundColor: "rgba(21,128,61,0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center"
-                  }}
-                >
-                  <ShoppingCart sx={{ color: "#bbf7d0" }} />
-                </Box>
-              </Stack>
-            </Paper>
-          </Grid>
+      <Box sx={{ p: 2, flex: 1, display: "flex", flexDirection: "column", gap: 0.75 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: "#f9fafb", lineHeight: 1.3 }}>
+            {p.nombre}
+          </Typography>
+          <Chip label={p.stock_actual === 0 ? "Sin stock" : `${p.stock_actual}`} color={stockColor} size="small" />
+        </Stack>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(55,65,81,0.7)"
-              }}
-            >
-              <Typography variant="body2" sx={{ color: "#9ca3af" }}>
-                Pedidos de hoy
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, mt: 0.5, color: "#f9fafb" }}
-              >
-                37
-              </Typography>
-              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.75 }}>
-                <ArrowUpward sx={{ fontSize: 16, color: "#4ade80" }} />
-                <Typography variant="caption" sx={{ color: "#4ade80" }}>
-                  +5 nuevos
-                </Typography>
-              </Stack>
-            </Paper>
-          </Grid>
+        {p.categoria && (
+          <Typography variant="caption" sx={{ color: "#4ade80" }}>
+            {p.categoria}
+          </Typography>
+        )}
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(55,65,81,0.7)"
-              }}
-            >
-              <Typography variant="body2" sx={{ color: "#9ca3af" }}>
-                Clientes activos
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, mt: 0.5, color: "#f9fafb" }}
-              >
-                1.248
-              </Typography>
-              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.75 }}>
-                <People sx={{ fontSize: 18, color: "#e5e7eb" }} />
-                <Typography variant="caption" sx={{ color: "#9ca3af" }}>
-                  +32 hoy
-                </Typography>
-              </Stack>
-            </Paper>
-          </Grid>
+        {p.descripcion && (
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#9ca3af",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              flex: 1,
+            }}
+          >
+            {p.descripcion}
+          </Typography>
+        )}
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(55,65,81,0.7)"
-              }}
-            >
-              <Typography variant="body2" sx={{ color: "#9ca3af" }}>
-                Stock bajo
-              </Typography>
-              <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, mt: 0.5, color: "#f9fafb" }}
-              >
-                12 productos
-              </Typography>
-              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mt: 0.75 }}>
-                <Inventory2 sx={{ fontSize: 18, color: "#f97316" }} />
-                <Typography variant="caption" sx={{ color: "#f97316" }}>
-                  Reponer pronto
-                </Typography>
-              </Stack>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        {/* Middle section: chart + recent orders */}
-        <Grid container spacing={2.5}>
-          <Grid item xs={12} md={7}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(31,41,55,0.8)",
-                height: "100%"
-              }}
-            >
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ mb: 1.5 }}
-              >
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Ventas de la semana
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#9ca3af" }}>
-                  Datos de ejemplo
-                </Typography>
-              </Stack>
-              {/* Placeholder de gráfico */}
-              <Box
-                sx={{
-                  mt: 1,
-                  height: 220,
-                  borderRadius: 2,
-                  background:
-                    "repeating-linear-gradient(90deg, rgba(31,41,55,0.6) 0, rgba(31,41,55,0.6) 1px, transparent 1px, transparent 16px)",
-                  position: "relative",
-                  overflow: "hidden"
-                }}
-              >
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 16,
-                    display: "flex",
-                    alignItems: "flex-end",
-                    gap: 1
-                  }}
-                >
-                  {[40, 65, 50, 80, 55, 90, 70].map((value, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        flex: 1,
-                        borderRadius: 999,
-                        background:
-                          "linear-gradient(180deg, #22c55e 0%, #15803d 100%)",
-                        height: `${value}%`,
-                        opacity: 0.9
-                      }}
-                    />
-                  ))}
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={5}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(31,41,55,0.8)",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column"
-              }}
-            >
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ mb: 1 }}
-              >
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Últimos pedidos
-                </Typography>
-                <IconButton size="small" sx={{ color: "#9ca3af" }}>
-                  <MoreVert fontSize="small" />
-                </IconButton>
-              </Stack>
-
-              <List dense sx={{ mt: 1, flex: 1, overflow: "auto" }}>
-                {[
-                  {
-                    id: "#A-1024",
-                    cliente: "Juan Pérez",
-                    total: "$89,90",
-                    estado: "Pagado"
-                  },
-                  {
-                    id: "#A-1023",
-                    cliente: "María Gómez",
-                    total: "$149,50",
-                    estado: "En preparación"
-                  },
-                  {
-                    id: "#A-1022",
-                    cliente: "Carlos López",
-                    total: "$39,99",
-                    estado: "Enviado"
-                  },
-                  {
-                    id: "#A-1021",
-                    cliente: "Ana Rodríguez",
-                    total: "$249,00",
-                    estado: "Pagado"
-                  }
-                ].map((order, index) => (
-                  <React.Fragment key={order.id}>
-                    <ListItem
-                      secondaryAction={
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 600, color: "#e5e7eb" }}
-                        >
-                          {order.total}
-                        </Typography>
-                      }
-                    >
-                      <ListItemAvatar>
-                        <Avatar
-                          sx={{
-                            bgcolor: "#14532d",
-                            width: 32,
-                            height: 32,
-                            fontSize: 13
-                          }}
-                        >
-                          {order.cliente[0]}
-                        </Avatar>
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "#f9fafb", fontWeight: 500 }}
-                          >
-                            {order.id} · {order.cliente}
-                          </Typography>
-                        }
-                        secondary={
-                          <Typography
-                            variant="caption"
-                            sx={{ color: "#9ca3af" }}
-                          >
-                            {order.estado}
-                          </Typography>
-                        }
-                      />
-                    </ListItem>
-                    {index < 3 && (
-                      <Divider
-                        component="li"
-                        sx={{ borderColor: "rgba(31,41,55,0.8)" }}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-              </List>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        {/* Quick actions */}
-        <Grid container spacing={2.5}>
-          <Grid item xs={12} md={6}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(31,41,55,0.8)"
-              }}
-            >
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
-                Accesos rápidos
-              </Typography>
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={1.5}
-                sx={{ mt: 0.5 }}
-              >
-                <Chip
-                  label="Crear producto"
-                  icon={<Inventory2 sx={{ fontSize: 18 }} />}
-                  sx={{
-                    bgcolor: "rgba(34,197,94,0.12)",
-                    borderRadius: 999,
-                    color: "#bbf7d0"
-                  }}
-                />
-                <Chip
-                  label="Ver pedidos"
-                  icon={<ShoppingCart sx={{ fontSize: 18 }} />}
-                  sx={{
-                    bgcolor: "rgba(15,23,42,0.8)",
-                    borderRadius: 999,
-                    color: "#e5e7eb"
-                  }}
-                />
-                <Chip
-                  label="Gestión de clientes"
-                  icon={<People sx={{ fontSize: 18 }} />}
-                  sx={{
-                    bgcolor: "rgba(15,23,42,0.8)",
-                    borderRadius: 999,
-                    color: "#e5e7eb"
-                  }}
-                />
-              </Stack>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Paper
-              sx={{
-                p: 2.5,
-                borderRadius: 3,
-                backgroundColor: "#020617",
-                border: "1px solid rgba(31,41,55,0.8)"
-              }}
-            >
-              <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5 }}>
-                Productos destacados
-              </Typography>
-              <Stack spacing={1.5}>
-                {["Alimento premium perro", "Juguete interactivo gato", "Cama ortopédica"].map(
-                  (name, index) => (
-                    <Stack
-                      key={name}
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      sx={{
-                        p: 1.25,
-                        borderRadius: 2,
-                        bgcolor: "rgba(15,23,42,0.9)"
-                      }}
-                    >
-                      <Typography variant="body2" sx={{ color: "#e5e7eb" }}>
-                        {name}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: index === 2 ? "#f97316" : "#4ade80",
-                          fontWeight: 500
-                        }}
-                      >
-                        {index === 2 ? "Stock bajo" : "Top ventas"}
-                      </Typography>
-                    </Stack>
-                  )
-                )}
-              </Stack>
-            </Paper>
-          </Grid>
-        </Grid>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: "auto", pt: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#22c55e" }}>
+            ${Number(p.precio).toFixed(2)}
+          </Typography>
+          <Button
+            size="small"
+            variant="contained"
+            startIcon={<ShoppingCart sx={{ fontSize: 16 }} />}
+            disabled={p.stock_actual === 0}
+            onClick={() => agregar(p, 1)}
+            sx={{
+              bgcolor: "#22c55e",
+              color: "#fff",
+              fontSize: 12,
+              py: 0.5,
+              ":hover": { bgcolor: "#16a34a" },
+              ":disabled": { bgcolor: "#374151", color: "#6b7280" },
+            }}
+          >
+            Agregar
+          </Button>
+        </Stack>
       </Box>
     </Box>
   );
 }
 
+// ─── Componente principal ─────────────────────────────────────────────────────
+export default function Dashboard() {
+  const { user, logout } = useAuth();
+  const { cantidad } = useCart();
+  const navigate = useNavigate();
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const isAdmin = Number(user?.rol) === 1;
+
+  useEffect(() => {
+    fetchProductos()
+      .then(setProductos)
+      .catch(() => setProductos([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Productos agrupados por categoría
+  const categorias = [...new Set(productos.map((p) => p.categoria).filter(Boolean))];
+  const sinCategoria = productos.filter((p) => !p.categoria);
+
+  return (
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#050805", color: "#f9fafb" }}>
+
+      {/* ── Navbar ── */}
+      <Box
+        sx={{
+          px: 4,
+          py: 2,
+          borderBottom: "1px solid rgba(45,107,45,0.3)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "linear-gradient(180deg, rgba(14,32,14,1) 0%, rgba(6,12,6,1) 100%)",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Box
+            sx={{
+              width: 36, height: 36, borderRadius: 2,
+              background: "radial-gradient(circle at 30% 30%, #4ade80, #22c55e, #14532d)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <Pets sx={{ color: "#f9fafb", fontSize: 22 }} />
+          </Box>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>AnimalZoo</Typography>
+        </Stack>
+
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <Typography variant="body2" sx={{ color: "#9ca3af", display: { xs: "none", sm: "block" } }}>
+            Hola, <strong style={{ color: "#f9fafb" }}>{user?.nombre}</strong>
+          </Typography>
+
+          {/* Ícono carrito */}
+          <Box sx={{ position: "relative", cursor: "pointer" }} onClick={() => setCartOpen(true)}>
+            <ShoppingCart sx={{ color: "#9ca3af", fontSize: 26, ":hover": { color: "#22c55e" }, transition: "color 0.2s" }} />
+            {cantidad > 0 && (
+              <Box sx={{
+                position: "absolute", top: -6, right: -6,
+                bgcolor: "#22c55e", color: "#fff", borderRadius: 999,
+                width: 18, height: 18, fontSize: 11, fontWeight: 700,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                {cantidad > 9 ? "9+" : cantidad}
+              </Box>
+            )}
+          </Box>
+
+          <Avatar
+            sx={{ width: 32, height: 32, bgcolor: "#14532d", fontSize: 14, cursor: "pointer" }}
+            onClick={(e) => setMenuAnchor(e.currentTarget)}
+          >
+            {user?.nombre?.[0]?.toUpperCase() ?? "U"}
+          </Avatar>
+        </Stack>
+
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={() => setMenuAnchor(null)}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          PaperProps={{
+            sx: { mt: 1, backgroundColor: "#1a1a1a", border: "1px solid #374151", borderRadius: 2, minWidth: 200 },
+          }}
+        >
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: "#f9fafb" }}>{user?.nombre}</Typography>
+            <Typography variant="caption" sx={{ color: "#9ca3af" }}>{user?.email}</Typography>
+          </Box>
+          <Divider sx={{ borderColor: "#374151" }} />
+          {isAdmin && (
+            <MenuItem
+              onClick={() => { setMenuAnchor(null); navigate("/admin-dashboard"); }}
+              sx={{ color: "#4ade80", gap: 1, py: 1.5 }}
+            >
+              <ListItemIcon sx={{ minWidth: "auto" }}>
+                <AdminPanelSettings sx={{ color: "#4ade80", fontSize: 20 }} />
+              </ListItemIcon>
+              Modo administrador
+            </MenuItem>
+          )}
+          <MenuItem
+            onClick={() => { setMenuAnchor(null); setConfirmLogout(true); }}
+            sx={{ color: "#f87171", gap: 1, py: 1.5 }}
+          >
+            <ListItemIcon sx={{ minWidth: "auto" }}>
+              <Logout sx={{ color: "#f87171", fontSize: 20 }} />
+            </ListItemIcon>
+            Cerrar sesión
+          </MenuItem>
+        </Menu>
+
+        <Dialog open={confirmLogout} onClose={() => setConfirmLogout(false)}>
+          <DialogTitle sx={{ backgroundColor: "#1a1a1a", color: "#fff" }}>¿Cerrar sesión?</DialogTitle>
+          <DialogContent sx={{ backgroundColor: "#1a1a1a" }}>
+            <Typography sx={{ color: "#9ca3af" }}>¿Estás seguro que querés salir?</Typography>
+          </DialogContent>
+          <DialogActions sx={{ backgroundColor: "#1a1a1a", px: 3, pb: 2 }}>
+            <Button onClick={() => setConfirmLogout(false)} sx={{ color: "#9ca3af" }}>No</Button>
+            <Button onClick={logout} variant="contained" sx={{ bgcolor: "#ef4444", ":hover": { bgcolor: "#b91c1c" } }}>
+              Sí, salir
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+
+      {/* ── Hero carousel ── */}
+      <Box sx={{ "& .swiper-pagination-bullet-active": { background: "#22c55e" } }}>
+        <Swiper
+          modules={[Autoplay, Pagination]}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          pagination={{ clickable: true }}
+          loop
+        >
+          {BANNERS.map((b, i) => (
+            <SwiperSlide key={i}>
+              <Box
+                sx={{
+                  background: b.bg,
+                  height: { xs: 220, sm: 300, md: 380 },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  gap: 2,
+                  px: 4,
+                  textAlign: "center",
+                }}
+              >
+                <Typography sx={{ fontSize: { xs: 56, md: 80 } }}>{b.emoji}</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: "#fff", fontSize: { xs: "1.6rem", md: "2.25rem" } }}>
+                  {b.titulo}
+                </Typography>
+                <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.75)", maxWidth: 500 }}>
+                  {b.subtitulo}
+                </Typography>
+              </Box>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </Box>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+          <CircularProgress sx={{ color: "#22c55e" }} />
+        </Box>
+      ) : productos.length === 0 ? (
+        <Typography sx={{ color: "#9ca3af", textAlign: "center", mt: 8 }}>
+          No hay productos disponibles por el momento.
+        </Typography>
+      ) : (
+        <Box sx={{ px: { xs: 2, md: 4 }, py: 5 }}>
+
+          {/* ── Carousel de todos los productos ── */}
+          <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>
+            Productos destacados
+          </Typography>
+
+          <Box
+            sx={{
+              "& .swiper-button-next, & .swiper-button-prev": { color: "#22c55e" },
+              mb: 6,
+            }}
+          >
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              navigation
+              autoplay={{ delay: 3000, disableOnInteraction: true }}
+              loop={productos.length > 4}
+              spaceBetween={16}
+              breakpoints={{
+                0:   { slidesPerView: 1.2 },
+                480: { slidesPerView: 2.2 },
+                768: { slidesPerView: 3.2 },
+                1024:{ slidesPerView: 4.2 },
+              }}
+            >
+              {productos.map((p) => (
+                <SwiperSlide key={p.id_producto}>
+                  <ProductoCard p={p} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </Box>
+
+          {/* ── Secciones por categoría ── */}
+          {categorias.map((cat) => {
+            const prods = productos.filter((p) => p.categoria === cat);
+            return (
+              <Box key={cat} sx={{ mb: 6 }}>
+                <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>{cat}</Typography>
+                  <Chip
+                    label={`${prods.length} producto${prods.length !== 1 ? "s" : ""}`}
+                    size="small"
+                    sx={{ bgcolor: "rgba(34,197,94,0.12)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.3)" }}
+                  />
+                </Stack>
+                <Box sx={{ "& .swiper-button-next, & .swiper-button-prev": { color: "#22c55e" } }}>
+                  <Swiper
+                    modules={[Navigation]}
+                    navigation
+                    loop={prods.length > 4}
+                    spaceBetween={16}
+                    breakpoints={{
+                      0:   { slidesPerView: 1.2 },
+                      480: { slidesPerView: 2.2 },
+                      768: { slidesPerView: 3.2 },
+                      1024:{ slidesPerView: 4.2 },
+                    }}
+                  >
+                    {prods.map((p) => (
+                      <SwiperSlide key={p.id_producto}>
+                        <ProductoCard p={p} />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </Box>
+              </Box>
+            );
+          })}
+
+          {/* Productos sin categoría */}
+          {sinCategoria.length > 0 && (
+            <Box sx={{ mb: 6 }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3 }}>Otros</Typography>
+              <Box sx={{ "& .swiper-button-next, & .swiper-button-prev": { color: "#22c55e" } }}>
+                <Swiper
+                  modules={[Navigation]}
+                  navigation
+                  loop={sinCategoria.length > 4}
+                  spaceBetween={16}
+                  breakpoints={{
+                    0:   { slidesPerView: 1.2 },
+                    480: { slidesPerView: 2.2 },
+                    768: { slidesPerView: 3.2 },
+                    1024:{ slidesPerView: 4.2 },
+                  }}
+                >
+                  {sinCategoria.map((p) => (
+                    <SwiperSlide key={p.id_producto}>
+                      <ProductoCard p={p} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      )}
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+    </Box>
+  );
+}

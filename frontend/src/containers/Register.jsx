@@ -12,6 +12,8 @@ import {
   Alert
 } from "@mui/material";
 
+const API = import.meta.env.VITE_URL_BACK || "http://localhost:4000";
+
 export default function Register() {
   const navigate = useNavigate();
   
@@ -48,8 +50,7 @@ export default function Register() {
     }
 
     try {
-      // 2. Petición al backend (ajusta la URL según tu puerto)
-      const response = await axios.post("http://localhost:4000/api/auth/register", {
+      const response = await axios.post(`${API}/api/auth/register`, {
         nombre: formValues.nombre,
         email: formValues.email,
         password: formValues.password,
@@ -60,8 +61,7 @@ export default function Register() {
       });
 
       if (response.status === 201 || response.status === 200) {
-        // Registro exitoso
-        navigate("/dashboard");
+        navigate("/login");
       }
     } catch (err) {
       // Manejo de errores (ej: email duplicado)

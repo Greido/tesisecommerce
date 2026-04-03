@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Importar Axios
+import { useAuth } from "../auth/AuthContext";
 import {
   Box,
   Button,
@@ -14,6 +14,7 @@ import { Visibility, VisibilityOff, Email, Lock, Pets } from "@mui/icons-materia
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,18 +26,13 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Conexión real con el backend
-      const response = await axios.post("http://localhost:4000/api/auth/login", { 
-        email, 
-        password 
-    });      
-      // Guardamos datos de sesión
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("rol", response.data.user.rol);
-      localStorage.setItem("nombre", response.data.user.nombre);
+      const loggedUser = await login({ email, password });
+      if (!loggedUser) {
+        throw new Error("Credenciales inválidas");
+      }
 
       // Redirigir según el ROL
-      if (response.data.user.rol === 1) {
+      if (Number(loggedUser.rol) === 1) {
         navigate("/admin-dashboard");
       } else {
         navigate("/dashboard");
