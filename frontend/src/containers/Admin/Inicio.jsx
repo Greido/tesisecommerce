@@ -2,6 +2,7 @@ import { Box, Container, Grid, IconButton, Paper, Stack, Typography } from "@mui
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../components/AdminNavbar.jsx";
 
@@ -23,6 +24,12 @@ const items = [
     icon: <ShoppingCartOutlinedIcon sx={{ fontSize: 50 }} />,
     route: "/ecommerce",
     available: false,
+  },
+  {
+    label: "Turnos",
+    icon: <CalendarMonthOutlinedIcon sx={{ fontSize: 50 }} />,
+    route: "/admin-turnos",
+    available: true,
   },
 ];
 

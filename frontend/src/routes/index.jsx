@@ -13,6 +13,8 @@ import VerProductos from '../containers/Admin/stock/VerProductos.jsx'
 import Checkout from '../containers/Checkout.jsx'
 import PagoExitoso from '../containers/PagoExitoso.jsx'
 import PagoPendiente from '../containers/PagoPendiente.jsx'
+import Turnos from '../containers/Turnos.jsx'
+import AdminTurnos from '../containers/Admin/Turnos.jsx'
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -65,6 +67,8 @@ export default function AppRoutes() {
       <Route path="/admin-stock-upload" element={<ProtectedRoute><SubirProducto /></ProtectedRoute>} />
       <Route path="/admin-stock-views" element={<ProtectedRoute><VerProductos /></ProtectedRoute>} />
       <Route path="/admin-ventas" element={<ProtectedRoute><AdminPedidos /></ProtectedRoute>} />
+      <Route path="/admin-turnos" element={<ProtectedRoute><AdminTurnos /></ProtectedRoute>} />
+      <Route path="/turnos" element={<ProtectedRoute><Turnos /></ProtectedRoute>} />
       <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
       <Route path="/pago-exitoso" element={<ProtectedRoute><PagoExitoso /></ProtectedRoute>} />
       <Route path="/pago-pendiente" element={<ProtectedRoute><PagoPendiente /></ProtectedRoute>} />

@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import stockRoutes from "./routes/stock.routes.js";
 import pedidosRoutes from "./routes/pedidos.routes.js";
 import pagosRoutes from "./routes/pagos.routes.js";
+import turnosRoutes from "./routes/turnos.routes.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/stock", stockRoutes);
 app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/pagos", pagosRoutes);
+app.use("/api/turnos", turnosRoutes);
 
 // --- NUEVO: MANEJADOR DE ERRORES GLOBAL ---
 app.use((err, req, res, next) => {
