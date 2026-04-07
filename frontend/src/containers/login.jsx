@@ -10,7 +10,8 @@ import {
   InputAdornment,
   Divider
 } from "@mui/material";
-import { Visibility, VisibilityOff, Email, Lock, Pets } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Email, Lock } from "@mui/icons-material";
+import logo from "../assets/logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -86,9 +87,12 @@ export default function Login() {
             px: 4
           }}
         >
-          <Pets
+          <Box
+            component="img"
+            src={logo}
+            alt="AnimalZoo"
             sx={{
-              fontSize: { md: 120, lg: 150 },
+              width: { md: 180, lg: 220 },
               mb: 3,
               opacity: 0.9,
               filter: "drop-shadow(0 4px 20px rgba(0,0,0,0.3))"
@@ -163,19 +167,11 @@ export default function Login() {
             }}
           >
             <Box
-              sx={{
-                width: 80,
-                height: 80,
-                borderRadius: "20px",
-                background: "linear-gradient(135deg, #1e4a1e 0%, #2d6b2d 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 8px 24px rgba(30, 74, 30, 0.4)"
-              }}
-            >
-              <Pets sx={{ fontSize: 40, color: "white" }} />
-            </Box>
+              component="img"
+              src={logo}
+              alt="AnimalZoo"
+              sx={{ width: 100 }}
+            />
           </Box>
 
           <Typography

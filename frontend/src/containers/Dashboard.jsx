@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { AdminPanelSettings, CalendarMonth, Logout, Pets, SearchOutlined, ShoppingCart, Close } from "@mui/icons-material";
+import logo from "../assets/logo.png";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import { useNavigate } from "react-router-dom";
@@ -186,14 +187,7 @@ export default function Dashboard() {
         position: "sticky", top: 0, zIndex: 100,
       }}>
         <Stack direction="row" alignItems="center" spacing={1.5}>
-          <Box sx={{
-            width: 36, height: 36, borderRadius: 2,
-            background: "radial-gradient(circle at 30% 30%, #4ade80, #22c55e, #14532d)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Pets sx={{ color: "#f9fafb", fontSize: 22 }} />
-          </Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>AnimalZoo</Typography>
+          <Box component="img" src={logo} alt="AnimalZoo" sx={{ height: 36 }} />
         </Stack>
 
         {/* Buscador */}

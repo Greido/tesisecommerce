@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -39,14 +40,13 @@ export default function Navbar() {
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           
           {/* LOGO */}
-          <Typography
-            variant="h6"
-            fontWeight="bold"
-            sx={{ cursor: "pointer", color: "#00e676" }}
+          <Box
+            component="img"
+            src={logo}
+            alt="AnimalZoo"
+            sx={{ height: 40, cursor: "pointer" }}
             onClick={() => navigate("/")}
-          >
-            AnimalZoo 🐾
-          </Typography>
+          />
 
           {/* SEARCH DESKTOP */}
           <Box

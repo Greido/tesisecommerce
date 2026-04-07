@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Logout, Pets, StorefrontOutlined } from "@mui/icons-material";
+import logo from "../assets/logo.png";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -50,17 +51,11 @@ export default function AdminNavbar() {
             }}
           >
             <Box
-              sx={{
-                width: 36, height: 36, borderRadius: 2,
-                background: "radial-gradient(circle at 30% 30%, #4ade80, #22c55e, #14532d)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}
-            >
-              <Pets sx={{ color: "#f9fafb", fontSize: 22 }} />
-            </Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#f9fafb" }}>
-              AnimalZoo
-            </Typography>
+              component="img"
+              src={logo}
+              alt="AnimalZoo"
+              sx={{ height: 36 }}
+            />
           </Box>
 
           <Typography sx={{ color: "#374151" }}>/</Typography>
