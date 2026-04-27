@@ -75,8 +75,8 @@ export default function Checkout() {
           { items: items.map((i) => ({ id_producto: i.id_producto, nombre: i.nombre, precio: i.precio, cantidad: i.cantidad })), direccion, observaciones },
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
-        // Redirigir al sandbox de MP
-        window.location.href = res.data.sandbox_init_point;
+        // Abrir MP en una nueva pestaña
+        window.open(res.data.sandbox_init_point, "_blank");
       } else {
         // Pago en efectivo — crear pedido directo
         const res = await axios.post(
